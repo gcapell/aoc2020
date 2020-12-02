@@ -1,10 +1,8 @@
-mod day1;
 mod day2;
-mod util;
 
 fn main() {
-    if false {
-        day1::first(3).unwrap();
-    }
-    day2::second()
+    println!(
+        "count:{}",
+        day2::count_matches(if true { day2::policy1 } else { day2::policy2 })
+    );
 }
