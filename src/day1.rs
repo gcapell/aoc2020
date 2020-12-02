@@ -8,7 +8,7 @@ pub fn first(size: usize) -> Result<(), Error> {
 
     let mut answer = vec![0; size];
     if util::summing_elements(&v, size, 2020, &mut answer) {
-        println!("{:?}-> {}", answer, answer.iter().fold(1, |acc,x| acc*x));
+        println!("{:?}-> {}", answer, answer.iter().fold(1, |acc, x| acc * x));
     }
     Ok(())
 }

@@ -1,12 +1,10 @@
-use std::io::Error;
 mod day1;
 mod day2;
 mod util;
 
-fn main() -> Result<(), Error> {
+fn main() {
     if false {
-        day1::first(3)?;
+        day1::first(3).unwrap();
     }
-    day2::first()
-    
+    day2::second()
 }
