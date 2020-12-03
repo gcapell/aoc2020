@@ -1,8 +1,5 @@
-mod day2;
+mod day3;
 
 fn main() {
-    println!(
-        "count:{}",
-        day2::count_matches(if true { day2::policy1 } else { day2::policy2 })
-    );
+    day3::count_trees();
 }
