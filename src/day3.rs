@@ -7,6 +7,12 @@ enum Square {
     Tree,
 }
 
+#[derive(Debug)]
+struct Slope {
+    right: usize,
+    down: usize,
+}
+
 pub fn count_trees() {
     let course = io::BufReader::new(fs::File::open("input.txt").unwrap())
         .lines()
@@ -14,20 +20,34 @@ pub fn count_trees() {
         .map(|line| line.chars().map(from_c).collect::<Vec<Square>>())
         .collect::<Vec<Vec<Square>>>();
 
-    let mut h = 0;
+    let slopes = vec![
+        Slope { right: 3, down: 1 },
+        Slope { right: 1, down: 1 },
+        Slope { right: 5, down: 1 },
+        Slope { right: 7, down: 1 },
+        Slope { right: 1, down: 2 },
+    ];
+    let product = slopes
+        .iter()
+        .map(|x| trees(&course, x))
+        .fold(1, |p, x| p * x);
+    println!("product {}", product);
+}
+
+fn trees(course: &Vec<Vec<Square>>, s: &Slope) -> i64 {
+    let mut row = 0;
+    let mut col = 0;
     let mut count = 0;
-    for line in course.iter() {
-        if let Square::Tree = line[h] {
+    while row < course.len() {
+        let line = &course[row];
+        row += s.down;
+        if let Square::Tree = line[col] {
             count += 1;
         }
-        h = (h + 3) % line.len()
+        col = (col + s.right) % line.len();
     }
-    println!(
-        "course: {:?}, length:{}, trees:{}",
-        course,
-        course.len(),
-        count
-    );
+    println!("count{}", count);
+    count
 }
 
 fn from_c(c: char) -> Square {
