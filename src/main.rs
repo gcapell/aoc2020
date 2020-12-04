@@ -1,5 +1,5 @@
-mod day3;
+mod day4;
 
 fn main() {
-    day3::count_trees();
+    day4::count_valid();
 }
