@@ -1,5 +1,5 @@
-mod day4;
+mod day5;
 
 fn main() {
-    day4::count_valid();
+    day5::highest_seat_id();
 }
