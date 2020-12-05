@@ -3,11 +3,11 @@ use std::io;
 use std::io::BufRead;
 
 pub fn highest_seat_id() {
-    let mut ids = io::BufReader::new(fs::File::open("input.txt").unwrap())
+    let mut ids: Vec<i32> = io::BufReader::new(fs::File::open("input.txt").unwrap())
         .lines()
         .filter_map(Result::ok)
         .map(|line| id(&line))
-        .collect::<Vec<i32>>();
+        .collect();
     ids.sort();
     println!(
         "missing{:?}",
