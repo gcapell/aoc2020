@@ -3,13 +3,24 @@ use std::io;
 use std::io::BufRead;
 
 pub fn highest_seat_id() {
-    let x = io::BufReader::new(fs::File::open("input.txt").unwrap())
+    let mut ids = io::BufReader::new(fs::File::open("input.txt").unwrap())
         .lines()
         .filter_map(Result::ok)
-        .map(|line|id(&line))
-        .max()
-        .unwrap();
-    println!("x:{}", x);
+        .map(|line| id(&line))
+        .collect::<Vec<i32>>();
+    ids.sort();
+    println!(
+        "missing{:?}",
+        &ids.windows(2)
+            .find(|x| {
+                if let &&[a, b] = x {
+                    a + 1 != b
+                } else {
+                    panic!()
+                }
+            })
+            .unwrap()
+    );
 }
 
 fn id(s: &str) -> i32 {
