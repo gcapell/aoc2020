@@ -9,35 +9,39 @@ pub fn dot() {
     let re = Regex::new(r"(\d+) (.*) bags?\.?").unwrap();
     let mut dag = Dag::<u32, usize, u32>::new();
     let mut node_names: HashMap<String, usize> = HashMap::new();
-    let mut name_nodes: HashMap<usize, String> = HashMap::new();
 
+    let mut shiny_gold = NodeIndex::new(0);
+    
     for line in io::BufReader::new(fs::File::open("input.txt").unwrap())
         .lines()
         .filter_map(Result::ok)
     {
         if let [outer, inner] = line.split(" contain ").collect::<Vec<&str>>().as_slice() {
             let outer = outer.strip_suffix(" bags").unwrap();
-            let outer_id = find_or_add(outer, &mut dag, &mut node_names, &mut name_nodes);
+
+            let outer_id = find_or_add(outer, &mut dag, &mut node_names);
+            if outer == "shiny gold" {
+                shiny_gold = NodeIndex::new(outer_id);
+            }
             if *inner == "no other bags." {
                 continue;
             }
             for x in inner.split(", ") {
                 let mat = re.captures(x).unwrap();
                 let (count, name) = (mat[1].parse::<usize>().unwrap(), &mat[2]);
-                let inner_id = find_or_add(name, &mut dag, &mut node_names, &mut name_nodes);
+                let inner_id = find_or_add(name, &mut dag, &mut node_names);
                 dag.add_edge(NodeIndex::new(outer_id), NodeIndex::new(inner_id), count)
                     .unwrap();
             }
         }
     }
-    let start = NodeIndex::new(*(node_names.get("shiny gold").unwrap()));
     let mut visited = HashSet::new();
     println!(
         "ancestors:{}",
-        count_distinct_ancestors(&dag, start, &mut visited)
+        count_distinct_ancestors(&dag, shiny_gold, &mut visited)
     );
     let mut cache = HashMap::new();
-    println!("contents:{}", contents(&dag, start, &mut cache));
+    println!("contents:{}", contents(&dag, shiny_gold, &mut cache));
 }
 
 fn contents(
@@ -77,14 +81,12 @@ fn find_or_add(
     name: &str,
     dag: &mut Dag<u32, usize, u32>,
     names: &mut HashMap<String, usize>,
-    nodes: &mut HashMap<usize, String>,
 ) -> usize {
     if let Some(o) = names.get(name) {
         *o
     } else {
         let i = dag.add_node(0).index();
         names.insert(name.to_string(), i);
-        nodes.insert(i, name.to_string());
         i
     }
 }
