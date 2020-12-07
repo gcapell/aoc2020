@@ -1,5 +1,4 @@
-use daggy;
-use daggy::{Dag, EdgeIndex, NodeIndex, Walker};
+use daggy::{Dag, NodeIndex, Walker};
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -30,9 +29,6 @@ pub fn dot() {
                     .unwrap();
             }
         }
-    }
-    if false {
-        graphviz(&dag, &name_nodes);
     }
     let start = NodeIndex::new(*(node_names.get("shiny gold").unwrap()));
     let mut visited = HashSet::new();
@@ -75,22 +71,6 @@ fn count_distinct_ancestors(
         count += 1 + count_distinct_ancestors(dag, p, visited);
     }
     count
-}
-
-fn graphviz(dag: &Dag<u32, usize, u32>, nodes: &HashMap<usize, String>) {
-    println!("digraph G {{");
-    for e in 0..dag.edge_count() {
-        let e = EdgeIndex::new(e);
-        let w = dag.edge_weight(e).unwrap();
-        let (a, b) = dag.edge_endpoints(e).unwrap();
-        println!(
-            r#"   "{}"-> "{}" [ label = "{}"] "#,
-            nodes.get(&a.index()).unwrap(),
-            nodes.get(&b.index()).unwrap(),
-            w
-        );
-    }
-    println!("}}");
 }
 
 fn find_or_add(
