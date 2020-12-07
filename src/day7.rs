@@ -1,5 +1,5 @@
 use daggy;
-use daggy::Walker;
+use daggy::{Dag, EdgeIndex, NodeIndex, Walker};
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -8,7 +8,7 @@ use std::io::BufRead;
 
 pub fn dot() {
     let re = Regex::new(r"(\d+) (.*) bags?\.?").unwrap();
-    let mut dag = daggy::Dag::<u32, usize, u32>::new();
+    let mut dag = Dag::<u32, usize, u32>::new();
     let mut node_names: HashMap<String, usize> = HashMap::new();
     let mut name_nodes: HashMap<usize, String> = HashMap::new();
 
@@ -26,19 +26,15 @@ pub fn dot() {
                 let mat = re.captures(x).unwrap();
                 let (count, name) = (mat[1].parse::<usize>().unwrap(), &mat[2]);
                 let inner_id = find_or_add(name, &mut dag, &mut node_names, &mut name_nodes);
-                dag.add_edge(
-                    daggy::NodeIndex::new(outer_id),
-                    daggy::NodeIndex::new(inner_id),
-                    count,
-                )
-                .unwrap();
+                dag.add_edge(NodeIndex::new(outer_id), NodeIndex::new(inner_id), count)
+                    .unwrap();
             }
         }
     }
     if false {
         graphviz(&dag, &name_nodes);
     }
-    let start = daggy::NodeIndex::new(*(node_names.get("shiny gold").unwrap()));
+    let start = NodeIndex::new(*(node_names.get("shiny gold").unwrap()));
     let mut visited = HashSet::new();
     println!(
         "ancestors:{}",
@@ -49,9 +45,9 @@ pub fn dot() {
 }
 
 fn contents(
-    dag: &daggy::Dag<u32, usize, u32>,
-    start: daggy::NodeIndex,
-    cache: &mut HashMap<daggy::NodeIndex, u32>,
+    dag: &Dag<u32, usize, u32>,
+    start: NodeIndex,
+    cache: &mut HashMap<NodeIndex, u32>,
 ) -> u32 {
     if let Some(n) = cache.get(&start) {
         return *n;
@@ -65,9 +61,9 @@ fn contents(
 }
 
 fn count_distinct_ancestors(
-    dag: &daggy::Dag<u32, usize, u32>,
-    start: daggy::NodeIndex,
-    visited: &mut HashSet<daggy::NodeIndex>,
+    dag: &Dag<u32, usize, u32>,
+    start: NodeIndex,
+    visited: &mut HashSet<NodeIndex>,
 ) -> u32 {
     let mut count = 0;
     for (_, p) in dag.parents(start).iter(dag) {
@@ -80,10 +76,10 @@ fn count_distinct_ancestors(
     count
 }
 
-fn graphviz(dag: &daggy::Dag<u32, usize, u32>, nodes: &HashMap<usize, String>) {
+fn graphviz(dag: &Dag<u32, usize, u32>, nodes: &HashMap<usize, String>) {
     println!("digraph G {{");
     for e in 0..dag.edge_count() {
-        let e = daggy::EdgeIndex::new(e);
+        let e = EdgeIndex::new(e);
         let w = dag.edge_weight(e).unwrap();
         let (a, b) = dag.edge_endpoints(e).unwrap();
         println!(
@@ -98,7 +94,7 @@ fn graphviz(dag: &daggy::Dag<u32, usize, u32>, nodes: &HashMap<usize, String>) {
 
 fn find_or_add(
     name: &str,
-    dag: &mut daggy::Dag<u32, usize, u32>,
+    dag: &mut Dag<u32, usize, u32>,
     names: &mut HashMap<String, usize>,
     nodes: &mut HashMap<usize, String>,
 ) -> usize {
