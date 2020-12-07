@@ -57,6 +57,7 @@ fn contents(
         let w = *dag.edge_weight(e).unwrap() as u32;
         count += w * (1 + contents(dag, c, cache));
     }
+    cache.insert(start, count);
     count
 }
 
