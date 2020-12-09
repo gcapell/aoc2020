@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::collections::HashMap;
 use std::fs;
 use std::io;
@@ -10,7 +11,7 @@ pub fn run() {
         .map(|x| x.parse::<i64>().unwrap())
         .collect::<Vec<i64>>();
 
-    let target = find_missing_sum(&nums, 25).unwrap();
+    let target = find_missing_sum(&nums, 25);
     println!("part1 {}", target);
 
     let v = contiguous_sum(&nums, target).unwrap();
@@ -18,24 +19,15 @@ pub fn run() {
     println!("part2 {}", part2);
 }
 
-fn find_missing_sum(v: &[i64], size: usize) -> Option<i64> {
-    for j in size..v.len() {
-        if !find_sum(v[j], &v[j - size..j]) {
-            return Some(v[j]);
-        }
-    }
-    None
-}
-
-fn find_sum(n: i64, v: &[i64]) -> bool {
-    for (i, a) in v.iter().enumerate() {
-        for b in v[i + 1..].iter() {
-            if a + b == n {
-                return true;
-            }
-        }
-    }
-    return false;
+fn find_missing_sum(v: &[i64], size: usize) -> i64 {
+    v.windows(size + 1)
+        .find(|v| {
+            !v[..size]
+                .iter()
+                .tuple_combinations()
+                .any(|(a, b)| a + b == v[size])
+        })
+        .unwrap()[size]
 }
 
 fn contiguous_sum(v: &[i64], target: i64) -> Option<&[i64]> {
