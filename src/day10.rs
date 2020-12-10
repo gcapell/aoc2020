@@ -36,17 +36,10 @@ pub fn run() {
     let mut q = VecDeque::with_capacity(3);
     q.push_front(Adapter { value: 0, count: 1 });
     for n in nums.iter().skip(1) {
-        while let Some(a) = q.back() {
-            if a.value + 3 < *n {
-                q.pop_back();
-            } else {
-                break;
-            }
-        }
-        let c = q.iter().map(|a| a.count).sum();
+        q.retain(|a|a.value+3 >= *n);
         q.push_front(Adapter {
             value: *n,
-            count: c,
+            count: q.iter().map(|a| a.count).sum(),
         });
     }
     println!("{:?}", q);
