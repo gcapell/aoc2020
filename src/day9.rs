@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::io;
 use std::io::BufRead;
+use std::time::Instant;
 
 pub fn run() {
     let nums = io::BufReader::new(fs::File::open("input.txt").unwrap())
@@ -11,12 +12,14 @@ pub fn run() {
         .map(|x| x.parse::<i64>().unwrap())
         .collect::<Vec<i64>>();
 
+        let start = Instant::now();
     let target = find_missing_sum(&nums, 25);
-    println!("part1 {}", target);
+    println!("part1 {}, {:?}", target, start.elapsed());
 
+    let start = Instant::now();
     let v = contiguous_sum(&nums, target).unwrap();
     let part2 = v.iter().min().unwrap() + v.iter().max().unwrap();
-    println!("part2 {}", part2);
+    println!("part2 {}, {:?}", part2,start.elapsed());
 }
 
 fn find_missing_sum(v: &[i64], size: usize) -> i64 {
