@@ -1,41 +1,41 @@
-
 use std::fs;
 use std::io;
 use std::io::BufRead;
 
-
 pub fn run() {
-    let mut x = 0;
-    let mut y = 0;
-    let mut heading = 90; // north is 0
+    let mut wx = 10;
+    let mut wy = 1;
+    let mut sx: i32 = 0;
+    let mut sy: i32 = 0;
     for line in io::BufReader::new(fs::File::open("input.txt").unwrap())
         .lines()
-        .filter_map(Result::ok) {
-            let d = &line[..1];
-            let v:i32 = line[1..].parse().unwrap();
-            println!("{}:{}",d,v);
-            match d{
-                "N" => y += v,
-                "S" => y -= v,
-                "E" => x += v,
-                "W" => x -= v,
-                "L" => heading = mod360(heading -v),
-                "R" => heading = mod360(heading +v),
-                "F" => match heading {
-                    0 => y += v,
-                    180 => y -= v,
-                    90 => x += v,
-                    270 => x -= v,
-                    _ => panic!("heading{}",heading),
-                }
-                _ => panic!("d {}",d),
+        .filter_map(Result::ok)
+    {
+        match (&line[..1], line[1..].parse().unwrap()) {
+            ("N", v) => wy += v,
+            ("S", v) => wy -= v,
+            ("E", v) => wx += v,
+            ("W", v) => wx -= v,
+            ("L", 90) | ("R", 270) => {
+                let tmp = wy;
+                wy = wx;
+                wx = -tmp;
             }
-            println!("{},{}({})",x,y,heading);
+            ("R", 90) | ("L", 270) => {
+                let tmp = wy;
+                wy = -wx;
+                wx = tmp;
+            }
+            ("R", 180) | ("L", 180) => {
+                wy = -wy;
+                wx = -wx;
+            }
+            ("F", v) => {
+                sx += wx * v;
+                sy += wy * v;
+            }
+            (d, v) => panic!("d {}, v {}", d, v),
         }
-        println!("{}", x.abs() + y.abs());
-}
-
-fn mod360(mut h:i32)->i32 {
-    h %=360;
-    if h<0 {h+360} else {h}
+    }
+    println!("{}", sx.abs() + sy.abs());
 }
