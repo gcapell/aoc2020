@@ -2,33 +2,33 @@ use std::fs;
 use std::io;
 use std::io::BufRead;
 
-
-pub fn run()  {
+pub fn run() {
     let mut f = io::BufReader::new(fs::File::open("input.txt").unwrap());
     let mut line = String::new();
     f.read_line(&mut line).unwrap();
-    let start:i32 = line.trim().parse().unwrap();
     line.clear();
     f.read_line(&mut line).unwrap();
-    println!("start {}", start);
-    let mut min_wait = 0;
-    let mut min_bus = 0;
-    let mut first = true;
-    for bus in line.trim().split(","){
-        if let Ok(n) = bus.parse::<i32>() {
-            let missed = start%n;
-            let wait = if missed==0 {0} else {n-missed};
-            if first || wait < min_wait {
-                min_wait =wait;
-                min_bus = n;
-                first = false;
-            }
 
-            
-         println!("bus {}, wait {}", n, wait);
-         
+    let mut congruences = Vec::new();
+    for (pos, bus) in line.trim().split(",").enumerate() {
+        if let Ok(b) = bus.parse::<i64>() {
+            let r = (b - ((pos as i64) % b)) % b;
+            congruences.push((b, r));
         }
     }
-    println!("min_bus {}, min_wait {}, product {}", min_bus, min_wait, min_bus*min_wait);
+    congruences.sort();
+    congruences.reverse();
+    println!("{}", solve_congruence(&congruences));
+}
 
+fn solve_congruence(mods: &[(i64, i64)]) -> i64 {
+    let mut pos: i64 = mods[0].1;
+    let mut add: i64 = mods[0].0;
+    for (m, r) in &mods[1..] {
+        while pos % m != *r {
+            pos += add;
+        }
+        add *= m;
+    }
+    pos
 }
