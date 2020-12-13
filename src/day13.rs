@@ -1,8 +1,11 @@
 use std::fs;
 use std::io;
 use std::io::BufRead;
+use std::time::Instant;
 
 pub fn run() {
+    let start = Instant::now();
+    
     let mut f = io::BufReader::new(fs::File::open("input.txt").unwrap());
     let mut line = String::new();
     f.read_line(&mut line).unwrap();
@@ -18,7 +21,8 @@ pub fn run() {
     }
     congruences.sort();
     congruences.reverse();
-    println!("{}", solve_congruence(&congruences));
+    let c = solve_congruence(&congruences);
+    println!("{}, {:?}", c, start.elapsed());
 }
 
 fn solve_congruence(mods: &[(i64, i64)]) -> i64 {
