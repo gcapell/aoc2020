@@ -10,7 +10,7 @@ struct Game {
 
 impl Game {
     fn store(&mut self, n: i32) {
-        println!("store {}->{}", self.turn + 1, n);
+        //println!("store {}->{}", self.turn + 1, n);
         self.next = if let Some(h) = self.history.get(&n) {
             self.turn - h
         } else {
@@ -34,8 +34,8 @@ pub fn run() {
     for n in &src {
         g.store(*n);
     }
-    while g.turn < 2019 {
+    while g.turn < 30000000 - 1 {
         g.store(g.next);
     }
-    println!("{:?}", g.next);
+    println!("{:?}, {:?}", g.next, start.elapsed());
 }
