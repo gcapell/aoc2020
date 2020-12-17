@@ -1,13 +1,7 @@
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io;
 use std::io::BufRead;
-
-#[derive(Debug)]
-struct Cube {
-    neighbours: i32,
-}
 
 type Point = (i32, i32, i32, i32);
 
@@ -36,7 +30,7 @@ fn cycle(active: HashSet<Point>) -> HashSet<Point> {
     let mut existing: HashMap<Point, i32> = HashMap::new();
 
     for p in active.iter() {
-        for q in MyRange::new(*p) {
+        for q in neighbours(*p) {
             let m = if active.contains(&q) {
                 &mut existing
             } else {
@@ -60,7 +54,7 @@ fn cycle(active: HashSet<Point>) -> HashSet<Point> {
     reply
 }
 
-struct MyRange {
+struct NeighbourGenerator {
     p: Point,
     dw: i32,
     dx: i32,
@@ -69,20 +63,18 @@ struct MyRange {
     done: bool,
 }
 
-impl MyRange {
-    fn new(p: Point) -> MyRange {
-        MyRange {
-            p: p,
-            dw: -1,
-            dx: -1,
-            dy: -1,
-            dz: -1,
-            done: false,
-        }
+fn neighbours(p: Point) -> NeighbourGenerator {
+    NeighbourGenerator {
+        p: p,
+        dw: -1,
+        dx: -1,
+        dy: -1,
+        dz: -1,
+        done: false,
     }
 }
 
-impl Iterator for MyRange {
+impl Iterator for NeighbourGenerator {
     type Item = Point;
 
     fn next(&mut self) -> Option<Point> {
