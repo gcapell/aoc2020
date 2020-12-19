@@ -1,7 +1,7 @@
+use regex::Regex;
 use std::fs;
 use std::io;
 use std::io::BufRead;
-use regex::Regex;
 
 pub fn run() {
     let rules: Vec<Rule> = io::BufReader::new(fs::File::open("rules2.txt").unwrap())
@@ -9,16 +9,16 @@ pub fn run() {
         .filter_map(Result::ok)
         .map(parse_rule)
         .collect();
-    
-    let pattern = format!("^{}$", regexp(&rules,0) );
-    let c = Regex::new(&pattern).unwrap();
-    
+
+    let a = regex(&rules, 42);
+    let b = regex(&rules, 31);
+
     let matches = io::BufReader::new(fs::File::open("input.txt").unwrap())
-            .lines()
-            .filter_map(Result::ok)
-            .filter(|x| c.is_match(x))
-            .count();    
-    println!("{}",matches);
+        .lines()
+        .filter_map(Result::ok)
+        .filter(|x| more_matches(&a, &b, x))
+        .count();
+    println!("{}", matches);
 }
 
 type Seq = Vec<usize>;
@@ -31,16 +31,43 @@ enum Rule {
 }
 use Rule::*;
 
-fn regexp(rules: &Vec<Rule>, r:usize)->String{
+fn more_matches(a: &regex::Regex, b: &regex::Regex, s: &str) -> bool {
+    let (na, t) = count_matches(a, s);
+    if na < 2 {
+        return false;
+    }
+    let (nb, u) = count_matches(b, t);
+    nb > 0 && nb < na && u.is_empty()
+}
+
+fn count_matches<'a>(r: &'a regex::Regex, s: &'a str) -> (i32, &'a str) {
+    let mut count = 0;
+    let mut t = s;
+    while let Some(m) = r.find(t) {
+        count += 1;
+        t = &t[m.end()..]
+    }
+    if count > 0 {
+        println!("count_matches ->{},{}", count, t);
+    }
+    (count, t)
+}
+
+fn regex(rules: &Vec<Rule>, r: usize) -> regex::Regex {
+    let p = format!("^{}", pattern(rules, r));
+    Regex::new(&p).unwrap()
+}
+
+fn pattern(rules: &Vec<Rule>, r: usize) -> String {
     match &rules[r] {
-        Literal(c)=>c.to_string(),
-        Sequence(s)=> sregexp(rules,s),
-        Alt(a,b)=> format!("({}|{})", sregexp(rules,a), sregexp(rules,b)),
+        Literal(c) => c.to_string(),
+        Sequence(s) => spattern(rules, s),
+        Alt(a, b) => format!("({}|{})", spattern(rules, a), spattern(rules, b)),
     }
 }
 
-fn sregexp(rules:&Vec<Rule>, s:&Seq)->String{
-    s.iter().map(|n| regexp(rules,*n)).collect()
+fn spattern(rules: &Vec<Rule>, s: &Seq) -> String {
+    s.iter().map(|n| pattern(rules, *n)).collect()
 }
 
 fn parse_rule(line: String) -> Rule {
