@@ -1,20 +1,26 @@
-use std::collections::{VecDeque,HashSet};
+use std::collections::{HashSet, VecDeque};
 
 type N = usize;
 
 pub fn run() {
     let demo = false;
-    let mut a: VecDeque<N> = VecDeque::from(if demo {vec![9, 2, 6, 3, 1]
-        } else {vec![
-        31, 24, 5, 33, 7, 12, 30, 22, 48, 14, 16, 26, 18, 45, 4, 42, 25, 20, 46, 21, 40, 38, 34,
-        17, 50,
-    ]});
+    let mut a: VecDeque<N> = VecDeque::from(if demo {
+        vec![9, 2, 6, 3, 1]
+    } else {
+        vec![
+            31, 24, 5, 33, 7, 12, 30, 22, 48, 14, 16, 26, 18, 45, 4, 42, 25, 20, 46, 21, 40, 38,
+            34, 17, 50,
+        ]
+    });
 
-    let mut b: VecDeque<N> = VecDeque::from(if demo {vec![5, 8, 4, 7, 10]} else {vec![
-        1, 3, 41, 8, 37, 35, 28, 39, 43, 29, 10, 27, 11, 36, 49, 32, 2, 23, 19, 9, 13, 15, 47, 6,
-        44,
-    ]});
- 
+    let mut b: VecDeque<N> = VecDeque::from(if demo {
+        vec![5, 8, 4, 7, 10]
+    } else {
+        vec![
+            1, 3, 41, 8, 37, 35, 28, 39, 43, 29, 10, 27, 11, 36, 49, 32, 2, 23, 19, 9, 13, 15, 47,
+            6, 44,
+        ]
+    });
 
     let winner = if game(&mut a, &mut b, 0) { a } else { b };
 
@@ -33,16 +39,18 @@ struct RepeatChecker {
 
 impl RepeatChecker {
     fn new() -> RepeatChecker {
-        RepeatChecker { seen: HashSet::new() }
+        RepeatChecker {
+            seen: HashSet::new(),
+        }
     }
 
     fn is_repeat(&mut self, a: &VecDeque<N>, b: &VecDeque<N>) -> bool {
-        let s = format!("{:?}{:?}",a,b);
+        let s = format!("{:?}{:?}", a, b);
         if self.seen.contains(&s) {
             true
         } else {
             self.seen.insert(s);
-            false            
+            false
         }
     }
 }
@@ -50,22 +58,7 @@ impl RepeatChecker {
 fn game(a: &mut VecDeque<N>, b: &mut VecDeque<N>, depth: usize) -> bool {
     let mut repeatchecker = RepeatChecker::new();
     while !a.is_empty() && !b.is_empty() {
-        if true {
-            println!();
-            println!(
-                "{dummy:>depth$}{a:?}",
-                dummy = "#",
-                depth = depth * 3,
-                a = a
-            );
-            println!(
-                "{dummy:>depth$}{b:?}",
-                dummy = "#",
-                depth = depth * 3,
-                b = b
-            );
-        }
-        if  repeatchecker.is_repeat(&a, &b) {
+        if repeatchecker.is_repeat(&a, &b) {
             return true;
         }
         let av = a.pop_front().unwrap();
