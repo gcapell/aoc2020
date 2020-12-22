@@ -1,10 +1,11 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::VecDeque;
 
 type N = usize;
+type Deck = VecDeque<N>;
 
 pub fn run() {
     let demo = false;
-    let mut a: VecDeque<N> = VecDeque::from(if demo {
+    let mut a: Deck = VecDeque::from(if demo {
         vec![9, 2, 6, 3, 1]
     } else {
         vec![
@@ -13,7 +14,7 @@ pub fn run() {
         ]
     });
 
-    let mut b: VecDeque<N> = VecDeque::from(if demo {
+    let mut b: Deck = VecDeque::from(if demo {
         vec![5, 8, 4, 7, 10]
     } else {
         vec![
@@ -22,40 +23,11 @@ pub fn run() {
         ]
     });
 
-    let winner = if game(&mut a, &mut b, 0) { a } else { b };
-
-    let score: N = winner
-        .iter()
-        .rev()
-        .enumerate()
-        .map(|(i, v)| (i + 1) * v)
-        .sum();
-    println!("score {}", score);
+    let winner = if game(&mut a, &mut b) { a } else { b };
+    println!("score {}", score(&winner));
 }
 
-struct RepeatChecker {
-    seen: HashSet<String>,
-}
-
-impl RepeatChecker {
-    fn new() -> RepeatChecker {
-        RepeatChecker {
-            seen: HashSet::new(),
-        }
-    }
-
-    fn is_repeat(&mut self, a: &VecDeque<N>, b: &VecDeque<N>) -> bool {
-        let s = format!("{:?}{:?}", a, b);
-        if self.seen.contains(&s) {
-            true
-        } else {
-            self.seen.insert(s);
-            false
-        }
-    }
-}
-
-fn game(a: &mut VecDeque<N>, b: &mut VecDeque<N>, depth: usize) -> bool {
+fn game(a: &mut Deck, b: &mut Deck) -> bool {
     let mut repeatchecker = RepeatChecker::new();
     while !a.is_empty() && !b.is_empty() {
         if repeatchecker.is_repeat(&a, &b) {
@@ -65,11 +37,7 @@ fn game(a: &mut VecDeque<N>, b: &mut VecDeque<N>, depth: usize) -> bool {
         let bv = b.pop_front().unwrap();
 
         let a_wins = if av <= a.len() && bv <= b.len() {
-            let mut c = a.clone();
-            c.truncate(av);
-            let mut d = b.clone();
-            d.truncate(bv);
-            game(&mut c, &mut d, depth + 1)
+            game(&mut sub_deck(a,av), &mut sub_deck(b,bv))
         } else {
             av > bv
         };
@@ -84,3 +52,35 @@ fn game(a: &mut VecDeque<N>, b: &mut VecDeque<N>, depth: usize) -> bool {
     }
     b.is_empty()
 }
+
+fn score(v: &Deck) -> N {
+    v.iter().rev().enumerate().map(|(i, v)| (i + 1) * v).sum()
+}
+
+fn sub_deck(v: &Deck, n:N)-> Deck {
+    let mut c = v.clone();
+    c.truncate(n);
+    c
+}
+
+struct RepeatChecker {
+    seen: Vec<(N, N)>,
+}
+
+impl RepeatChecker {
+    fn new() -> RepeatChecker {
+        RepeatChecker { seen: Vec::new() }
+    }
+
+    fn is_repeat(&mut self, a: &Deck, b: &Deck) -> bool {
+        let t = (score(a), score(b));
+
+        if self.seen.contains(&t) {
+            true
+        } else {
+            self.seen.push(t);
+            false
+        }
+    }
+}
+
