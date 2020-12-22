@@ -5,23 +5,15 @@ type Deck = VecDeque<N>;
 
 pub fn run() {
     let demo = false;
-    let mut a: Deck = VecDeque::from(if demo {
-        vec![9, 2, 6, 3, 1]
-    } else {
-        vec![
-            31, 24, 5, 33, 7, 12, 30, 22, 48, 14, 16, 26, 18, 45, 4, 42, 25, 20, 46, 21, 40, 38,
-            34, 17, 50,
-        ]
-    });
+    let mut a: Deck = VecDeque::from(vec![
+        31, 24, 5, 33, 7, 12, 30, 22, 48, 14, 16, 26, 18, 45, 4, 42, 25, 20, 46, 21, 40, 38, 34,
+        17, 50,
+    ]);
 
-    let mut b: Deck = VecDeque::from(if demo {
-        vec![5, 8, 4, 7, 10]
-    } else {
-        vec![
-            1, 3, 41, 8, 37, 35, 28, 39, 43, 29, 10, 27, 11, 36, 49, 32, 2, 23, 19, 9, 13, 15, 47,
-            6, 44,
-        ]
-    });
+    let mut b: Deck = VecDeque::from(vec![
+        1, 3, 41, 8, 37, 35, 28, 39, 43, 29, 10, 27, 11, 36, 49, 32, 2, 23, 19, 9, 13, 15, 47, 6,
+        44,
+    ]);
 
     let winner = if game(&mut a, &mut b) { a } else { b };
     println!("score {}", score(&winner));
@@ -37,7 +29,7 @@ fn game(a: &mut Deck, b: &mut Deck) -> bool {
         let bv = b.pop_front().unwrap();
 
         let a_wins = if av <= a.len() && bv <= b.len() {
-            game(&mut sub_deck(a,av), &mut sub_deck(b,bv))
+            game(&mut sub_deck(a, av), &mut sub_deck(b, bv))
         } else {
             av > bv
         };
@@ -57,7 +49,7 @@ fn score(v: &Deck) -> N {
     v.iter().rev().enumerate().map(|(i, v)| (i + 1) * v).sum()
 }
 
-fn sub_deck(v: &Deck, n:N)-> Deck {
+fn sub_deck(v: &Deck, n: N) -> Deck {
     let mut c = v.clone();
     c.truncate(n);
     c
@@ -74,13 +66,9 @@ impl RepeatChecker {
 
     fn is_repeat(&mut self, a: &Deck, b: &Deck) -> bool {
         let t = (score(a), score(b));
-
-        if self.seen.contains(&t) {
-            true
-        } else {
+        self.seen.contains(&t) || {
             self.seen.push(t);
             false
         }
     }
 }
-
